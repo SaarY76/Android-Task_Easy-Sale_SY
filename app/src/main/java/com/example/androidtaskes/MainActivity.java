@@ -251,18 +251,17 @@ public class MainActivity extends NoActionBarClass
                 String contactPhone = contactPhoneEditText.getText().toString();
                 String contactEmail = contactEmailEditText.getText().toString();
 
-                gettingGenderByName(contactName, genderReceived ->
+                // a boolean result that will indicate if there were errors in the inputs or not
+                boolean inputsErrorResult = thereAreErrors(contactName, contactNameError,
+                        contactPhone,contactPhoneError,
+                        contactEmail, contactEmailError, contactBirthDateError);
+                if (!inputsErrorResult)// no errors, can create contact
                 {
-                    if (genderReceived != null && !genderReceived.trim().isEmpty())
+                    gettingGenderByName(contactName, genderReceived ->
                     {
-                        gender = genderReceived;
-                        // a boolean result that will indicate if there were errors in the inputs or not
-                        boolean inputsErrorResult = thereAreErrors(contactName, contactNameError,
-                                contactPhone,contactPhoneError,
-                                contactEmail, contactEmailError, contactBirthDateError);
-
-                        if (!inputsErrorResult)// no errors, can create contact
+                        if (genderReceived != null && !genderReceived.trim().isEmpty())
                         {
+                            gender = genderReceived;
                             Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
 
                             AppDatabase db = SignupLogin_Activity.getDb();
@@ -287,21 +286,17 @@ public class MainActivity extends NoActionBarClass
                                 }
                             }).start();
                         }
-                    }
-                });
+                    });
+                }
             });
 
 
-            cancelButton.setOnClickListener(new View.OnClickListener()
+            cancelButton.setOnClickListener(v ->
             {
-                @Override
-                public void onClick(View v)
-                {
-                    // Handle cancel button click
-                    chosenBirthDate = null;
-                    gender = null;
-                    dialog.dismiss();
-                }
+                // Handle cancel button click
+                chosenBirthDate = null;
+                gender = null;
+                dialog.dismiss();
             });
         }
 
@@ -323,72 +318,67 @@ public class MainActivity extends NoActionBarClass
                     String contactName = contactNameEditText.getText().toString();
                     String contactPhone = contactPhoneEditText.getText().toString();
                     String contactEmail = contactEmailEditText.getText().toString();
+                    if (chosenBirthDate == null)
+                        chosenBirthDate = clickedContact.getBirthdate();
+                    // a boolean result that will indicate if there were errors in the inputs or not
+                    boolean inputsErrorResult = thereAreErrors(contactName, contactNameError,
+                            contactPhone,contactPhoneError,
+                            contactEmail, contactEmailError, contactBirthDateError);
+                    if (!inputsErrorResult)// no errors, can create contact
+                    {
                         gettingGenderByName(contactName, genderReceived ->
                         {
-                            if (chosenBirthDate == null)
-                                chosenBirthDate = clickedContact.getBirthdate();
-                            // a boolean result that will indicate if there were errors in the inputs or not
-                            boolean inputsErrorResult = thereAreErrors(contactName, contactNameError,
-                                    contactPhone,contactPhoneError,
-                                    contactEmail, contactEmailError, contactBirthDateError);
-                            if (!inputsErrorResult)// no errors, can create contact
+                            boolean needToUpdate = false;
+                            if (!contactName.equals(clickedContact.getName()) || !contactPhone.equals(clickedContact.getPhone()) ||
+                                    !contactEmail.equals(clickedContact.getEmail()) ||
+                                    (chosenBirthDate!= null && !chosenBirthDate.equals(clickedContact.getBirthdate()))
+                                    || !gender.equals(clickedContact.getGender()))
+                                needToUpdate = true;
+                            gender = genderReceived;
+                            if (needToUpdate)
                             {
-                                boolean needToUpdate = false;
+                                AppDatabase db = SignupLogin_Activity.getDb();
 
-                                if (!contactName.equals(clickedContact.getName()) || !contactPhone.equals(clickedContact.getPhone()) ||
-                                        !contactEmail.equals(clickedContact.getEmail()) ||
-                                        (chosenBirthDate!= null && !chosenBirthDate.equals(clickedContact.getBirthdate()))
-                                        || !gender.equals(clickedContact.getGender()))
-                                    needToUpdate = true;
-                                gender = genderReceived;
-                                if (needToUpdate)
-                                {
-                                    AppDatabase db = SignupLogin_Activity.getDb();
+                                new Thread(() -> {
+                                    UserDao userDao = db.userDao();
+                                    Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
+                                    int result = 0;
 
-                                    new Thread(() -> {
-                                        UserDao userDao = db.userDao();
-                                        Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
-                                        int result = 0;
-
-                                        if (!contactPhone.equals(oldPhoneNumber))
-                                        {
-                                            result = userDao.countContactsByPhoneForUser(user.getUserName(), contactPhone);
-                                        }
-                                        if (result == 0)// we can update with contact with new or the same phone number
-                                        {
-                                            userDao.updateContact(user.getUserName(),oldPhoneNumber, contact);
-                                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Contact Updated successfully!", Toast.LENGTH_LONG).show());
-                                            chosenBirthDate = null;
-                                            gender = null;
-                                            dialog.dismiss();
-                                        }
-                                        else
-                                        {
-                                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Contact's Phone number already exists!", Toast.LENGTH_LONG).show());
-                                        }
-                                    }).start();
-                                }
-                                else
-                                {
-                                    chosenBirthDate = null;
-                                    gender = null;
-                                    dialog.dismiss();
-                                }
+                                    if (!contactPhone.equals(oldPhoneNumber))
+                                    {
+                                        result = userDao.countContactsByPhoneForUser(user.getUserName(), contactPhone);
+                                    }
+                                    if (result == 0)// we can update with contact with new or the same phone number
+                                    {
+                                        userDao.updateContact(user.getUserName(),oldPhoneNumber, contact);
+                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Contact Updated successfully!", Toast.LENGTH_LONG).show());
+                                        chosenBirthDate = null;
+                                        gender = null;
+                                        dialog.dismiss();
+                                    }
+                                    else
+                                    {
+                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Contact's Phone number already exists!", Toast.LENGTH_LONG).show());
+                                    }
+                                }).start();
+                            }
+                            else
+                            {
+                                chosenBirthDate = null;
+                                gender = null;
+                                dialog.dismiss();
                             }
                         });
+                    }
                 }
             });
 
-            cancelButton.setOnClickListener(new View.OnClickListener()
+            cancelButton.setOnClickListener(v ->
             {
-                @Override
-                public void onClick(View v)
-                {
-                    // Handle cancel button click
-                    chosenBirthDate = null;
-                    gender = null;
-                    dialog.dismiss();
-                }
+                // Handle cancel button click
+                chosenBirthDate = null;
+                gender = null;
+                dialog.dismiss();
             });
         }
     }
