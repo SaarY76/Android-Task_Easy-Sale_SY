@@ -44,7 +44,7 @@ public class MainActivity extends NoActionBarClass
     private User user;// the current user that has signed in that we collect from the intent
     private ListView contactsListView;// the ListView that will be filled with Contacts
     private TextView textViewNoContacts;// the TextView that will show to the user that there are no Contacts
-    private TextView textViewUserNameTitle;
+    private TextView textViewUserNameTitle;// the TextView that will show the user's username
     private String chosenBirthDate = null;// the chosen birthdate from the create or update contact
     private final int MIN_PHONE_NUMBER_LENGTH = 10;// the minimum phone number's length
 
