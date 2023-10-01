@@ -2,7 +2,6 @@ package com.example.androidtaskes;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -39,7 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class MainActivity extends NoActionBarClass
+public class MainActivity extends NoActionBarAndNotTurnAroundClass
 {
     private User user;// the current user that has signed in that we collect from the intent
     private ListView contactsListView;// the ListView that will be filled with Contacts

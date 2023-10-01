@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SignupLogin_Activity extends NoActionBarClass
+public class SignupLogin_Activity extends NoActionBarAndNotTurnAroundClass
 {
     private static AppDatabase db;// a variable that we can use from all of the Activities of the Database instance
     public static AppDatabase getDb()
