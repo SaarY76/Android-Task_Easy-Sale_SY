@@ -44,6 +44,7 @@ public class MainActivity extends NoActionBarClass
     private User user;// the current user that has signed in that we collect from the intent
     private ListView contactsListView;// the ListView that will be filled with Contacts
     private TextView textViewNoContacts;// the TextView that will show to the user that there are no Contacts
+    private TextView textViewUserNameTitle;
     private String chosenBirthDate = null;// the chosen birthdate from the create or update contact
     private final int MIN_PHONE_NUMBER_LENGTH = 10;// the minimum phone number's length
 
@@ -61,6 +62,7 @@ public class MainActivity extends NoActionBarClass
         textViewNoContacts = findViewById(R.id.textViewNoContacts);
         //thisLinearLayout = findViewById(R.id.thisLinearLayout);
         contactsListView = findViewById(R.id.contactsListView);
+        textViewUserNameTitle = findViewById(R.id.mainActivity_userName_Title);
 
         // Get the Intent that started this activity
         Intent intent = getIntent();
@@ -72,6 +74,8 @@ public class MainActivity extends NoActionBarClass
             // Convert the user JSON string back to User object using Gson
             Gson gson = new Gson();
             user = gson.fromJson(userJson, User.class);
+            // setting the title with the user's username
+            textViewUserNameTitle.setText(textViewUserNameTitle.getText().toString() + " " + user.getUserName());
             userDao.getContactsForUser(user.getUserName()).observe(this, contacts ->
             {
                 if (contacts != null && !contacts.isEmpty())// if there are Contacts in the Database related to this user

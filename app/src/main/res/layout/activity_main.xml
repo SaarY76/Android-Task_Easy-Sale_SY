@@ -11,6 +11,16 @@
     android:id="@+id/thisLinearLayout">
 
     <TextView
+        android:id="@+id/mainActivity_userName_Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Welcome"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
