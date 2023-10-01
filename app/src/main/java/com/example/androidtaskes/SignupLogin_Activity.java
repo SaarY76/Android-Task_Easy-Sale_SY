@@ -2,6 +2,7 @@ package com.example.androidtaskes;
 
 import androidx.room.Room;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -248,6 +249,7 @@ public class SignupLogin_Activity extends NoActionBarAndNotTurnAroundClass
      * end of the password EditText that in this function it changes the eye based on the user's click.
      * if the eye is regular, the password is unseen, and if there is a line on the eye the password is seen
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void setOnClickListenerToEyeInEditText ()
     {
         editTextPassword.setOnTouchListener((v, event) ->
