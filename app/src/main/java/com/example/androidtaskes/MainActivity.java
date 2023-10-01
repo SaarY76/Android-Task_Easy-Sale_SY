@@ -48,8 +48,8 @@ public class MainActivity extends NoActionBarClass
     private String chosenBirthDate = null;// the chosen birthdate from the create or update contact
     private final int MIN_PHONE_NUMBER_LENGTH = 10;// the minimum phone number's length
 
-    private final AppDatabase db = SignupLogin_Activity.getDb();// a variable that is the instance of the Database
-    private final UserDao userDao = db.userDao();// a variable that is the instance of the interface that have function of Database Queries
+    private AppDatabase db;// a variable that is the instance of the Database
+    private UserDao userDao;// a variable that is the instance of the interface that have function of Database Queries
 
     private String gender;// contact gender class variable that we will put from the API
 
@@ -63,6 +63,10 @@ public class MainActivity extends NoActionBarClass
         //thisLinearLayout = findViewById(R.id.thisLinearLayout);
         contactsListView = findViewById(R.id.contactsListView);
         textViewUserNameTitle = findViewById(R.id.mainActivity_userName_Title);
+
+        // initializing the Database objects
+        db = SignupLogin_Activity.getDb();
+        userDao = db.userDao();
 
         // Get the Intent that started this activity
         Intent intent = getIntent();
@@ -264,8 +268,6 @@ public class MainActivity extends NoActionBarClass
                             gender = genderReceived;
                             Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
 
-                            AppDatabase db = SignupLogin_Activity.getDb();
-
                             new Thread(() ->
                             {
                                 UserDao userDao = db.userDao();
@@ -337,10 +339,8 @@ public class MainActivity extends NoActionBarClass
                             gender = genderReceived;
                             if (needToUpdate)
                             {
-                                AppDatabase db = SignupLogin_Activity.getDb();
 
                                 new Thread(() -> {
-                                    UserDao userDao = db.userDao();
                                     Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
                                     int result = 0;
 
@@ -395,7 +395,6 @@ public class MainActivity extends NoActionBarClass
     {
         int minAge = 5; // the minimum age that the contact can be
         TextView birthdateTextView = dialogView.findViewById(R.id.birthdateText);
-        String birthdateText = birthdateTextView.getText().toString();
         int year = 2000, month = 0, day = 1;
 
         // Create SimpleDateFormat object with source string format
