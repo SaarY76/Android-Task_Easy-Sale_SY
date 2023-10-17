@@ -38,8 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class MainActivity extends NoActionBarAndNotTurnAroundClass
-{
+public class MainActivity extends NoActionBarAndNotTurnAroundClass {
     private User user;// the current user that has signed in that we collect from the intent
     private ListView contactsListView;// the ListView that will be filled with Contacts
     private TextView textViewNoContacts;// the TextView that will show to the user that there are no Contacts
@@ -53,8 +52,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
     private String gender;// contact gender class variable that we will put from the API
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -69,11 +67,10 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
 
         // Get the Intent that started this activity
         Intent intent = getIntent();
-        String userJson  = intent.getStringExtra("userJson");
+        String userJson = intent.getStringExtra("userJson");
 
         // Check if the userJson is not null
-        if (userJson != null && !userJson.isEmpty())
-        {
+        if (userJson != null && !userJson.isEmpty()) {
             // Convert the user JSON string back to User object using Gson
             Gson gson = new Gson();
             user = gson.fromJson(userJson, User.class);
@@ -86,8 +83,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
                     textViewNoContacts.setVisibility(View.GONE);
                     contactsListView.setVisibility(View.VISIBLE);
                     populateContactsInListView(contacts);
-                }
-                else // there are no Contacts related to this user
+                } else // there are no Contacts related to this user
                 {
                     contactsListView.setVisibility(View.GONE);
                     textViewNoContacts.setVisibility(View.VISIBLE);
@@ -99,23 +95,19 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
     /**
      * the function is populating the contacts ListView by getting a List of Contacts
      * and connect them with an ArrayAdapter
+     *
      * @param contacts- a List of Contacts
      */
-    private void populateContactsInListView (List<Contact> contacts)
-    {
-        if(contactsListView.getAdapter() == null)
-        {
+    private void populateContactsInListView(List<Contact> contacts) {
+        if (contactsListView.getAdapter() == null) {
             // Creating an instance of ArrayAdapter with the context, layout file and list of items.
-            ArrayAdapter<Contact> adapter = new ArrayAdapter<Contact>(this, R.layout.contact_layout, contacts)
-            {
+            ArrayAdapter<Contact> adapter = new ArrayAdapter<Contact>(this, R.layout.contact_layout, contacts) {
                 @Override
-                public View getView(int position, View convertView, ViewGroup parent)
-                {
+                public View getView(int position, View convertView, ViewGroup parent) {
                     // Getting the User object at the current position
                     Contact contact = getItem(position);
                     // Inflating the layout if it is not already inflated
-                    if (convertView == null)
-                    {
+                    if (convertView == null) {
                         convertView = LayoutInflater.from(getContext()).inflate(R.layout.contact_layout, parent, false);
                     }
 
@@ -138,7 +130,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
                         AppDatabase db = SignupLogin_Activity.getDb();
                         UserDao userDao = db.userDao();
 
-                        new Thread(() -> userDao.deleteContactByPhoneNumber(user.getUserName(),contact.getPhone())).start();
+                        new Thread(() -> userDao.deleteContactByPhoneNumber(user.getUserName(), contact.getPhone())).start();
                         Toast.makeText(MainActivity.this, "Contact deleted successfully!", Toast.LENGTH_LONG).show();
                     });
 
@@ -147,9 +139,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
             };
             // Setting the adapter to the ListView
             contactsListView.setAdapter(adapter);
-        }
-        else
-        {
+        } else {
             ArrayAdapter<Contact> adapter = (ArrayAdapter<Contact>) contactsListView.getAdapter();
             adapter.clear();
             adapter.addAll(contacts);
@@ -162,11 +152,11 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
      * it uses Retrofit for the API call to the Gender API and after it getting the gender,
      * it puts it in a local variable and putting the gender received in the callback so only
      * after it, all of the other code that using this callback will move on
-     * @param name - a String of a Contact
+     *
+     * @param name - a String of a Contact name
      * @param callback- a Gender callback that will be done after putting in the gender received
      */
-    private void gettingGenderByName (String name, GenderCallback callback)
-    {
+    private void gettingGenderByName(String name, GenderCallback callback) {
         // Initialize Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.genderize.io/")
@@ -180,10 +170,8 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
         Call<GenderResponse> call = genderApi.getGender(name);
         call.enqueue(new Callback<GenderResponse>() {
             @Override
-            public void onResponse(@NonNull Call<GenderResponse> call, @NonNull Response<GenderResponse> response)
-            {
-                if (response.isSuccessful())
-                {
+            public void onResponse(@NonNull Call<GenderResponse> call, @NonNull Response<GenderResponse> response) {
+                if (response.isSuccessful()) {
                     // Get the gender from the response and use it
                     GenderResponse genderResponse = response.body();
                     gender = genderResponse.getGender();
@@ -192,8 +180,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
             }
 
             @Override
-            public void onFailure(@NonNull Call<GenderResponse> call, @NonNull Throwable t)
-            {
+            public void onFailure(@NonNull Call<GenderResponse> call, @NonNull Throwable t) {
                 callback.onGenderReceived(null); // or you might want to handle this differently
             }
         });
@@ -203,10 +190,10 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
      * the function is showing an AlertDialog of create a Contact or Updating a Contact based on the
      * Contact parameter that if it's null it will be create a Contact and if not it will be update.
      * in the AlertDialog there will Views that the user can create or update the Contact.
+     *
      * @param clickedContact- a Contact object
      */
-    public void showDialogCreateOrUpdateContact(Contact clickedContact)
-    {
+    public void showDialogCreateOrUpdateContact(Contact clickedContact) {
         // Creating an AlertDialog builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -220,7 +207,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
         Button birthdateBtn = dialogView.findViewById(R.id.birthdateBtn);
         birthdateBtn.setOnClickListener(v ->
         {
-            getBirthdateFromUser(dialogView,clickedContact); // get into a class variable the birthdate chosen
+            getBirthdateFromUser(dialogView, clickedContact); // get into a class variable the birthdate chosen
         });
 
         EditText contactNameEditText = dialogView.findViewById(R.id.editTextNameContact);
@@ -256,32 +243,28 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
 
                 // a boolean result that will indicate if there were errors in the inputs or not
                 boolean inputsErrorResult = thereAreErrors(contactName, contactNameError,
-                        contactPhone,contactPhoneError,
+                        contactPhone, contactPhoneError,
                         contactEmail, contactEmailError, contactBirthDateError);
                 if (!inputsErrorResult)// no errors, can create contact
                 {
                     gettingGenderByName(contactName, genderReceived ->
                     {
-                        if (genderReceived != null && !genderReceived.trim().isEmpty())
-                        {
+                        if (genderReceived != null && !genderReceived.trim().isEmpty()) {
                             gender = genderReceived;
                             Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
 
                             new Thread(() ->
                             {
                                 UserDao userDao = db.userDao();
-                                int result = userDao.countContactsByPhoneForUser(user.getUserName(),contactPhone);
-                                if (result == 0)
-                                {
+                                int result = userDao.countContactsByPhoneForUser(user.getUserName(), contactPhone);
+                                if (result == 0) {
                                     userDao.insertContact(contact);
                                     runOnUiThread(() ->
                                             Toast.makeText(MainActivity.this, "Contact created successfully!", Toast.LENGTH_LONG).show());
                                     chosenBirthDate = null;
                                     gender = null;
                                     dialog.dismiss();
-                                }
-                                else
-                                {
+                                } else {
                                     runOnUiThread(() ->
                                             Toast.makeText(MainActivity.this, "Contact's Phone number already exists!", Toast.LENGTH_LONG).show());
                                 }
@@ -299,23 +282,19 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
                 gender = null;
                 dialog.dismiss();
             });
-        }
-
-        else // it's the update contact dialog
+        } else // it's the update contact dialog
         {
             textViewTitle.setText("Update Contact");
             contactNameEditText.setText(clickedContact.getName());
             String oldPhoneNumber = clickedContact.getPhone();
             contactPhoneEditText.setText(clickedContact.getPhone());
             contactEmailEditText.setText(clickedContact.getEmail());
-            calculateAge(clickedContact.getBirthdate(),dialogView);
+            calculateAge(clickedContact.getBirthdate(), dialogView);
             textViewGender.setText(clickedContact.getGender());
 
-            submitButton.setOnClickListener(new View.OnClickListener()
-            {
+            submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v)
-                {
+                public void onClick(View v) {
                     String contactName = contactNameEditText.getText().toString();
                     String contactPhone = contactPhoneEditText.getText().toString();
                     String contactEmail = contactEmailEditText.getText().toString();
@@ -323,7 +302,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
                         chosenBirthDate = clickedContact.getBirthdate();
                     // a boolean result that will indicate if there were errors in the inputs or not
                     boolean inputsErrorResult = thereAreErrors(contactName, contactNameError,
-                            contactPhone,contactPhoneError,
+                            contactPhone, contactPhoneError,
                             contactEmail, contactEmailError, contactBirthDateError);
                     if (!inputsErrorResult)// no errors, can create contact
                     {
@@ -332,37 +311,31 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
                             boolean needToUpdate = false;
                             if (!contactName.equals(clickedContact.getName()) || !contactPhone.equals(clickedContact.getPhone()) ||
                                     !contactEmail.equals(clickedContact.getEmail()) ||
-                                    (chosenBirthDate!= null && !chosenBirthDate.equals(clickedContact.getBirthdate()))
+                                    (chosenBirthDate != null && !chosenBirthDate.equals(clickedContact.getBirthdate()))
                                     || !gender.equals(clickedContact.getGender()))
                                 needToUpdate = true;
                             gender = genderReceived;
-                            if (needToUpdate)
-                            {
+                            if (needToUpdate) {
 
                                 new Thread(() -> {
                                     Contact contact = new Contact(user.getUserName(), contactPhone, contactName, contactEmail, gender, chosenBirthDate);
                                     int result = 0;
 
-                                    if (!contactPhone.equals(oldPhoneNumber))
-                                    {
+                                    if (!contactPhone.equals(oldPhoneNumber)) {
                                         result = userDao.countContactsByPhoneForUser(user.getUserName(), contactPhone);
                                     }
                                     if (result == 0)// we can update with contact with new or the same phone number
                                     {
-                                        userDao.updateContact(user.getUserName(),oldPhoneNumber, contact);
+                                        userDao.updateContact(user.getUserName(), oldPhoneNumber, contact);
                                         runOnUiThread(() -> Toast.makeText(MainActivity.this, "Contact Updated successfully!", Toast.LENGTH_LONG).show());
                                         chosenBirthDate = null;
                                         gender = null;
                                         dialog.dismiss();
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         runOnUiThread(() -> Toast.makeText(MainActivity.this, "Contact's Phone number already exists!", Toast.LENGTH_LONG).show());
                                     }
                                 }).start();
-                            }
-                            else
-                            {
+                            } else {
                                 chosenBirthDate = null;
                                 gender = null;
                                 dialog.dismiss();
@@ -387,11 +360,11 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
      * updating a user. in the function there will be opened a DatePickerDialog that let the user
      * choose a birthdate and after choosing it will put the birthdate in a class variable and
      * after it, it will put it with the Contacts age in a TextView that in the dialogView parameter
+     *
      * @param dialogView - an AlertDialog View that from it the function is calling
-     * @param contact - the Contact that is details in the dialogView if it's from a Update Contact dialog
+     * @param contact    - the Contact that is details in the dialogView if it's from a Update Contact dialog
      */
-    private void getBirthdateFromUser(View dialogView, Contact contact)
-    {
+    private void getBirthdateFromUser(View dialogView, Contact contact) {
         int minAge = 5; // the minimum age that the contact can be
         TextView birthdateTextView = dialogView.findViewById(R.id.birthdateText);
         int year = 2000, month = 0, day = 1;
@@ -400,27 +373,21 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         TextView dialogTitle = dialogView.findViewById(R.id.textViewTitleCreateOrUpdate);
         String dialogTitleString = dialogTitle.getText().toString();
-        if (dialogTitleString.contains("Update"))
-        {
+        if (dialogTitleString.contains("Update")) {
             String birthdateContact = contact.getBirthdate();
-            if (birthdateContact != null)
-            {
-                try
-                {
+            if (birthdateContact != null) {
+                try {
                     Date date = format.parse(birthdateContact);
 
                     // Use Calendar class to extract day, month, and year
-                    if (date != null)
-                    {
+                    if (date != null) {
                         Calendar calendar = Calendar.getInstance();
                         calendar.setTime(date);
                         year = calendar.get(Calendar.YEAR);
                         month = calendar.get(Calendar.MONTH);
                         day = calendar.get(Calendar.DAY_OF_MONTH);
                     }
-                }
-                catch (ParseException e)
-                {
+                } catch (ParseException e) {
                     e.printStackTrace(); // handle the exception
                 }
             }
@@ -433,63 +400,54 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
 
         // Create a new instance of DatePickerDialog and set the maximum date
         DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this,
-                new DatePickerDialog.OnDateSetListener()
-                {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
-                    {
-                        Calendar currentYear = Calendar.getInstance();
-                        Calendar dateOfBirth = Calendar.getInstance();
-                        dateOfBirth.set(year, month, dayOfMonth); // Set the date of birth here
-                        int age = currentYear.get(Calendar.YEAR) - dateOfBirth.get(Calendar.YEAR);
+                (view, year1, month1, dayOfMonth) -> {
+                    Calendar currentYear = Calendar.getInstance();
+                    Calendar dateOfBirth = Calendar.getInstance();
+                    dateOfBirth.set(year1, month1, dayOfMonth); // Set the date of birth here
+                    int age = currentYear.get(Calendar.YEAR) - dateOfBirth.get(Calendar.YEAR);
 
-                        // Checking if the user hasn't had their birthday yet this year
-                        if (currentYear.get(Calendar.DAY_OF_YEAR) < dateOfBirth.get(Calendar.DAY_OF_YEAR)) {
-                            age--;
-                        }
-                        String birthdate = dayOfMonth + "/" + (month + 1) + "/" + year + ", age : " + age;
-                        birthdateTextView.setText(birthdate);
-                        String selectedBirthdate = year + "-" + (month + 1) + "-" + dayOfMonth;
-                        chosenBirthDate = selectedBirthdate;
+                    // Checking if the user hasn't had their birthday yet this year
+                    if (currentYear.get(Calendar.DAY_OF_YEAR) < dateOfBirth.get(Calendar.DAY_OF_YEAR)) {
+                        age--;
                     }
+                    String birthdate = dayOfMonth + "/" + (month1 + 1) + "/" + year1 + ", age : " + age;
+                    birthdateTextView.setText(birthdate);
+                    String selectedBirthdate = year1 + "-" + (month1 + 1) + "-" + dayOfMonth;
+                    chosenBirthDate = selectedBirthdate;
                 }, year, month, day); // Setting the initial date to the date values
-                datePickerDialog.getDatePicker().setMaxDate(maxDate);
-                datePickerDialog.show();
+        datePickerDialog.getDatePicker().setMaxDate(maxDate);
+        datePickerDialog.show();
     }
 
     /**
      * the function is calculating the Contact's age based on it's birthdate parameter and then
      * putting it in a TextView from the dialogView in the parameter
+     *
      * @param contactBirthDate- a String that represent the Contact's birthdate
-     * @param dialogView - an AlertDialog View
+     * @param dialogView        - an AlertDialog View
      */
-    public void calculateAge(String contactBirthDate, View dialogView)
-    {
+    public void calculateAge(String contactBirthDate, View dialogView) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        try
-        {
-                Date birthDate = format.parse(contactBirthDate);
-                Calendar birthCalendar = Calendar.getInstance();
-                birthCalendar.setTime(birthDate);
+        try {
+            Date birthDate = format.parse(contactBirthDate);
+            Calendar birthCalendar = Calendar.getInstance();
+            birthCalendar.setTime(birthDate);
 
-                Calendar today = Calendar.getInstance();
+            Calendar today = Calendar.getInstance();
 
-                int age = today.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR);
-                if (today.get(Calendar.DAY_OF_YEAR) < birthCalendar.get(Calendar.DAY_OF_YEAR))
-                {
-                    age--; // Adjusting the age if birthday hasn't occurred yet this year
-                }
+            int age = today.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR);
+            if (today.get(Calendar.DAY_OF_YEAR) < birthCalendar.get(Calendar.DAY_OF_YEAR)) {
+                age--; // Adjusting the age if birthday hasn't occurred yet this year
+            }
 
-                int birthDay = birthCalendar.get(Calendar.DAY_OF_MONTH);
-                int birthMonth = birthCalendar.get(Calendar.MONTH)+1; // Months are zero-based in Calendar
-                int birthYear = birthCalendar.get(Calendar.YEAR);
+            int birthDay = birthCalendar.get(Calendar.DAY_OF_MONTH);
+            int birthMonth = birthCalendar.get(Calendar.MONTH) + 1; // Months are zero-based in Calendar
+            int birthYear = birthCalendar.get(Calendar.YEAR);
 
-                String ageString = birthDay + "/" + birthMonth + "/" + birthYear + ", age: " + age;
-                TextView birthdateText = dialogView.findViewById(R.id.birthdateText);
-                birthdateText.setText(ageString);
-        }
-        catch (ParseException e)
-        {
+            String ageString = birthDay + "/" + birthMonth + "/" + birthYear + ", age: " + age;
+            TextView birthdateText = dialogView.findViewById(R.id.birthdateText);
+            birthdateText.setText(ageString);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
@@ -499,13 +457,13 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
      * TextViews that representing Error messages from the AlertDialog and this function checking
      * errors if there are it will return true and will fill the errors in the specific TextViews,
      * and else it will return false and will put "" in the TextViews
+     *
      * @return - true if there is at least one error, and else false
      */
     private boolean thereAreErrors(String contactName, TextView contactNameError,
                                    String contactPhone, TextView contactPhoneError,
                                    String contactEmail, TextView contactEmailError,
-                                   TextView contactBirthDateError)
-    {
+                                   TextView contactBirthDateError) {
         boolean thereIsAnError = false;
 
         if (contactName.equals("")) {
@@ -547,20 +505,20 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
 
     /**
      * a function that checking a String representing an email
+     *
      * @param email - a String representing an email
      * @return - true if the email is valid and else false
      */
-    private boolean isEmailValid(String email)
-    { // returns true if the email is valid and else false
+    private boolean isEmailValid(String email) { // returns true if the email is valid and else false
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     /**
      * this function is the on click function the Add Contact button
+     *
      * @param view - a Button View
      */
-    public void addContact(View view)
-    {
+    public void addContact(View view) {
         showDialogCreateOrUpdateContact(null);
     }
 
@@ -570,8 +528,7 @@ public class MainActivity extends NoActionBarAndNotTurnAroundClass
      * to the Signup/Login Activity, and the user's choice will make the action of staying or leaving
      */
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         new AlertDialog.Builder(this)
                 .setTitle("Logout Confirmation")
                 .setMessage("Are you sure you want to log out?")
